@@ -1,9 +1,10 @@
-// pages/api/scrapeData.js
 import * as cheerio from 'cheerio';
 import axios from 'axios';
 import { Pinecone } from '@pinecone-database/pinecone';
+import { OpenAIApi, Configuration } from 'openai';
 
 const pcak = process.env.PINECONE_API_KEY;
+const openaiApiKey = process.env.OPENAI_API_KEY;
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
@@ -13,10 +14,10 @@ export default async function handler(req, res) {
     }
 
     try {
+      // Scrape the website for data
       const response = await axios.get(url);
       const $ = cheerio.load(response.data);
 
-      // Extract relevant information from the page
       const Professor = $('div.NameTitle__Name-dowf0z-0.cfjPUG').text().trim();
       const Subject = $('a.TeacherDepartment__StyledDepartmentLink-fl79e8-0').text().trim();
       const Rating = $('div.RatingValue__Numerator-qw8sqy-2').first().text().trim();
@@ -27,12 +28,26 @@ export default async function handler(req, res) {
       console.log("Rating:", Rating);
       console.log("Review:", Review);
 
-      // Store the scraped data in Pinecone
+      // Generate embeddings using OpenAI
+      const configuration = new Configuration({
+        apiKey: openaiApiKey,
+      });
+      const openai = new OpenAIApi(configuration);
+
+      const embeddingResponse = await openai.createEmbedding({
+        model: 'text-embedding-ada-002', // Use the appropriate model for embeddings
+        input: [Review],
+      });
+
+      const embedding = embeddingResponse.data.data[0].embedding;
+
+      // Store the scraped data and embeddings in Pinecone
       const pc = new Pinecone({ apiKey: pcak });
-      const index = pc.index('rag').namespace('ns1');
+      const index = pc.index('rag').namespace('namespace');
+
       await index.upsert([{
-        id: professor,
-        values: [Professor, Subject, Rating, Review],
+        id: Professor, // Unique ID, you could also use a combination of name and subject
+        values: embedding, // Embedding values
         metadata: {
           Subject,
           Rating,
@@ -43,10 +58,10 @@ export default async function handler(req, res) {
       // Return a success message
       return res.status(200).json({ 
         success: true, 
-        message: 'Data successfully stored in Pinecone' 
+        message: 'Data and embeddings successfully stored in Pinecone' 
       });
     } catch (error) {
-      console.error('Error scraping data:', error);
+      console.error('Error scraping data or storing in Pinecone:', error);
       return res.status(500).json({ success: false, message: 'Failed to scrape and store data' });
     }
   } else {

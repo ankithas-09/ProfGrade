@@ -1,0 +1,124 @@
+{
+    "reviews": [
+      {
+        "professor": "Dr. Emily Thorpe",
+        "subject": "Biology",
+        "stars": 4,
+        "review": "Dr. Thorpe's lectures are engaging and informative. She really knows how to make complex topics accessible."
+      },
+      {
+        "professor": "Prof. Michael Chen",
+        "subject": "Computer Science",
+        "stars": 5,
+        "review": "Brilliant instructor! Prof. Chen's passion for AI is contagious. His projects are challenging but rewarding."
+      },
+      {
+        "professor": "Dr. Sarah Johnson",
+        "subject": "Psychology",
+        "stars": 3,
+        "review": "Dr. Johnson's research is cutting-edge, but her lectures can be a bit dry. Office hours are helpful though."
+      },
+      {
+        "professor": "Prof. David Martinez",
+        "subject": "History",
+        "stars": 4,
+        "review": "Prof. Martinez brings history to life with his storytelling. His exams are tough but fair."
+      },
+      {
+        "professor": "Dr. Rachel Wong",
+        "subject": "Chemistry",
+        "stars": 5,
+        "review": "Dr. Wong is an excellent teacher. Her lab demonstrations are always exciting and memorable."
+      },
+      {
+        "professor": "Prof. Jonathan Grant",
+        "subject": "Economics",
+        "stars": 2,
+        "review": "Prof. Grant seems knowledgeable, but he's often unprepared for class and disorganized."
+      },
+      {
+        "professor": "Dr. Olivia Patel",
+        "subject": "Environmental Science",
+        "stars": 4,
+        "review": "Dr. Patel's field trips are the highlight of her course. She's passionate about conservation."
+      },
+      {
+        "professor": "Prof. Thomas Lee",
+        "subject": "Mathematics",
+        "stars": 3,
+        "review": "Prof. Lee knows his stuff, but he can be impatient with students who struggle. His problem sets are intense."
+      },
+      {
+        "professor": "Dr. Lisa Morales",
+        "subject": "Sociology",
+        "stars": 5,
+        "review": "Dr. Morales is inspiring! Her classes always lead to thought-provoking discussions on social issues."
+      },
+      {
+        "professor": "Prof. Robert Kim",
+        "subject": "Physics",
+        "stars": 4,
+        "review": "Prof. Kim's enthusiasm for physics is infectious. His demonstrations make complex concepts clearer."
+      },
+      {
+        "professor": "Dr. Amanda Foster",
+        "subject": "English Literature",
+        "stars": 5,
+        "review": "Dr. Foster's analysis of texts is profound. She encourages creative thinking and original interpretations."
+      },
+      {
+        "professor": "Prof. James Wilson",
+        "subject": "Political Science",
+        "stars": 3,
+        "review": "Prof. Wilson knows his field well, but he tends to dominate discussions. More student participation would be nice."
+      },
+      {
+        "professor": "Dr. Sophia Nguyen",
+        "subject": "Neuroscience",
+        "stars": 4,
+        "review": "Dr. Nguyen's research is fascinating. Her course is challenging but she's always willing to help outside of class."
+      },
+      {
+        "professor": "Prof. Daniel Brown",
+        "subject": "Art History",
+        "stars": 5,
+        "review": "Prof. Brown's lectures are like guided tours through time. His passion for art is truly inspiring."
+      },
+      {
+        "professor": "Dr. Elizabeth Taylor",
+        "subject": "Geology",
+        "stars": 4,
+        "review": "Dr. Taylor's field trips are excellent. She makes rocks and minerals surprisingly interesting!"
+      },
+      {
+        "professor": "Prof. Christopher Lee",
+        "subject": "Mechanical Engineering",
+        "stars": 3,
+        "review": "Prof. Lee is brilliant, but his lectures can be hard to follow. His office hours are very helpful though."
+      },
+      {
+        "professor": "Dr. Maria Rodriguez",
+        "subject": "Linguistics",
+        "stars": 5,
+        "review": "Dr. Rodriguez is an excellent teacher. Her explanations of language structures are clear and fascinating."
+      },
+      {
+        "professor": "Prof. William Chang",
+        "subject": "Business Administration",
+        "stars": 4,
+        "review": "Prof. Chang brings real-world experience to the classroom. His case studies are particularly insightful."
+      },
+      {
+        "professor": "Dr. Laura Schmidt",
+        "subject": "Anthropology",
+        "stars": 5,
+        "review": "Dr. Schmidt's classes are eye-opening. She challenges students to think critically about culture and society."
+      },
+      {
+        "professor": "Prof. Richard Owens",
+        "subject": "Philosophy",
+        "stars": 4,
+        "review": "Prof. Owens leads great discussions. He's skilled at making abstract concepts accessible and relevant."
+      }
+    ]
+  }
