@@ -29,7 +29,7 @@ export default async function handler(req, res) {
       const pc = new Pinecone({
           apiKey: process.env.PINECONE_API_KEY  // Access the API key from the environment variable
       });
-      const index = pc.index('rag');  // Replace with your actual index name
+      const index = pc.index("rag").namespace("namespace");  // Replace with your actual index name
       await index.upsert([{
         id: Professor,  // Ensure this is unique and consistently identifies the record
         values: [parseFloat(Rating)],  // Convert Rating to a number
