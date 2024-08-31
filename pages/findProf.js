@@ -28,42 +28,37 @@ export default function FindProf() {
     setIsTyping(true);
 
     try {
-        // Build the conversation object
         const conversation = [...messages, userMessage].map(msg => ({
             role: msg.sender === 'user' ? 'user' : 'bot',
             content: msg.text
         }));
 
-        console.log('Conversation:', conversation); // Log conversation
-
-        // Structure the request body correctly
-        const requestBody = { conversation }; // No need to wrap in another object
-        console.log('Sending body:', JSON.stringify(requestBody)); // Log the body being sent
+        const requestBody = { conversation };
 
         const response = await fetch('/api/chat/chatbot', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(requestBody), // Send the request body as is
+            body: JSON.stringify(requestBody),
         });
 
         if (response.ok) {
             const result = await response.json();
-            console.log('Response:', result); // Log response
 
-            // Format response
-            const formattedText = result.message; // Directly take the message
+            // Add bot message and sentiment to messages
             setMessages((prevMessages) => [
                 ...prevMessages,
-                { sender: 'bot', text: formattedText },
+                { sender: 'bot', text: result.message },
+                // Include sentiment in the message
+                { sender: 'bot', text: `Sentiment: ${result.sentiment}` },
             ]);
         } else {
             const errorResult = await response.json();
-            console.error('Error response:', errorResult); // Log the error response
+
             setMessages((prevMessages) => [
                 ...prevMessages,
-                { sender: 'bot', text: 'Error: Unable to fetch response' },
+                { sender: 'bot', text: errorResult.message || 'Error: Unable to fetch response' },
             ]);
         }
     } catch (error) {
@@ -76,6 +71,7 @@ export default function FindProf() {
         setIsTyping(false);
     }
 };
+
 
 
 

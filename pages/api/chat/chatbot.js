@@ -180,98 +180,138 @@ const isProfessorRelatedQuery = (query) => {
   return false;
 };
 
-const openai = new OpenAI();
+// Additional helper function for sentiment analysis
+const analyzeSentiment = async (query) => {
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        role: "user",
+        content: `Analyze the sentiment of the following statement: "${query}". Provide positive, negative, or neutral as the response.`,
+      },
+    ],
+  });
+
+  return response.choices[0].message.content;
+};
 
 export async function POST(req, res) {
-    if (req.method !== "POST") {
-        return res.status(405).json({ message: "Only POST requests are allowed" });
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Only POST requests are allowed" });
+  }
+
+  try {
+    const { conversation } = req.body;
+
+    // Log the request body for debugging
+    console.log("Request Body:", JSON.stringify(req.body, null, 2));
+
+    // Validate the request body
+    if (
+      !conversation ||
+      !Array.isArray(conversation) ||
+      conversation.length === 0
+    ) {
+      return res
+        .status(400)
+        .json({
+          message: "Request body is not valid. Expected an array of messages.",
+        });
     }
 
-    try {
-        const { conversation } = req.body;
+    const userQuery = conversation[conversation.length - 1].content;
 
-        // Log the request body for debugging
-        console.log("Request Body:", JSON.stringify(req.body, null, 2));
-
-        // Validate the request body
-        if (!conversation || !Array.isArray(conversation) || conversation.length === 0) {
-            return res.status(400).json({ message: "Request body is not valid. Expected an array of messages." });
-        }
-
-        const userQuery = conversation[conversation.length - 1].content;
-
-        // Check if userQuery is defined
-        if (!userQuery) {
-            return res.status(400).json({ message: "User query is missing." });
-        }
-
-        // Validate if the query is related to professors
-        if (!isProfessorRelatedQuery(userQuery)) {
-            return res.status(400).json({
-                message: "I'm sorry, but I can only assist with queries related to professors and their courses. Could you please ask a question about a professor, their teaching style, or a specific course?",
-            });
-        }
-
-        const pc = new Pinecone({
-            apiKey: process.env.PINECONE_API_KEY,
-        });
-        const index = pc.index("rag").namespace("ns1");
-
-        // Generate embedding with a vector dimension of 1
-        const embedding = await openai.embeddings.create({
-            model: "text-embedding-3-small",
-            input: userQuery,
-            encoding_format: "float",
-        });
-
-        // Extracting only the first dimension for the query
-        const vector = [embedding.data[0].embedding[0]]; // Take the first element to match dimension 1
-
-        const results = await index.query({
-            topK: 5,
-            includeMetadata: true,
-            vector: vector, // Use the adjusted vector
-        });
-
-        const structuredResults = results.matches.map((match) => ({
-            professor: match.metadata.professor || match.id,
-            review: match.metadata.review || match.metadata.summary,
-            subject: match.metadata.subject || match.metadata.department,
-            stars: match.metadata.stars || match.metadata.overallRating,
-        }));
-
-        const lastMessageContent = userQuery + JSON.stringify(structuredResults);
-        const lastDataWithoutLastMessage = conversation.slice(0, conversation.length - 1);
-
-        // Adjusting the roles to valid ones
-        const messages = [
-            { role: "system", content: systemprompt },
-            ...lastDataWithoutLastMessage.map((msg) => ({
-                role: msg.role === "bot" ? "assistant" : msg.role, // Change 'bot' to 'assistant'
-                content: msg.content,
-            })),
-            { role: "user", content: lastMessageContent },
-        ];
-
-        const completion = await openai.chat.completions.create({
-            messages: messages,
-            model: "gpt-3.5-turbo",
-            stream: false,
-        });
-
-        const structuredResponse = {
-            message: completion.choices[0].message.content,
-            results: structuredResults,
-        };
-
-        return res.status(200).json(structuredResponse);
-    } catch (error) {
-        console.error("Error in API route:", error);
-        return res.status(500).json({ message: "Internal Server Error", error: error.message });
+    // Check if userQuery is defined
+    if (!userQuery) {
+      return res.status(400).json({ message: "User query is missing." });
     }
+
+    // Validate if the query is related to professors
+    if (!isProfessorRelatedQuery(userQuery)) {
+      return res.status(400).json({
+        message:
+          "I'm sorry, but I can only assist with queries related to professors and their courses. Could you please ask a question about a professor, their teaching style, or a specific course?",
+      });
+    }
+    // Perform sentiment analysis on userQuery
+    const sentiment = await analyzeSentiment(userQuery);
+
+    // Log sentiment for debugging
+    console.log("Sentiment Analysis Result:", sentiment);
+
+    const pc = new Pinecone({
+      apiKey: process.env.PINECONE_API_KEY,
+    });
+    const index = pc.index("rag").namespace("namespace");
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
+    // Generate embedding with a vector dimension of 1
+    const embedding = await openai.embeddings.create({
+      model: "text-embedding-3-small",
+      input: userQuery,
+      encoding_format: "float",
+    });
+
+    // Extracting only the first dimension for the query
+    const vector = [embedding.data[0].embedding[0]]; // Take the first element to match dimension 1
+
+    const results = await index.query({
+      topK: 5,
+      includeMetadata: true,
+      vector: vector, // Use the adjusted vector
+    });
+
+    const structuredResults = results.matches.map((match) => ({
+      professor: match.metadata.professor || match.id,
+      review: match.metadata.review || match.metadata.summary,
+      subject: match.metadata.subject || match.metadata.department,
+      stars: match.metadata.stars || match.metadata.overallRating,
+    }));
+
+    const lastMessageContent = userQuery + JSON.stringify(structuredResults);
+    const lastDataWithoutLastMessage = conversation.slice(
+      0,
+      conversation.length - 1
+    );
+
+    // Adjusting the roles to valid ones
+    const messages = [
+      { role: "system", content: systemprompt },
+      ...lastDataWithoutLastMessage.map((msg) => ({
+        role: msg.role === "bot" ? "assistant" : msg.role, // Change 'bot' to 'assistant'
+        content: msg.content,
+      })),
+      { role: "user", content: lastMessageContent },
+    ];
+
+    const completion = await openai.chat.completions.create({
+      messages: messages,
+      model: "gpt-3.5-turbo",
+      stream: false,
+    });
+
+    const structuredResponse = {
+      message: completion.choices[0].message.content,
+      results: structuredResults,
+      sentiment: sentiment, // Add sentiment analysis result here
+    };
+
+    return res.status(200).json(structuredResponse);
+  } catch (error) {
+    console.error("Error in API route:", error);
+    return res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
 }
 
 // Default export for the handler
 export default function handler(req, res) {
-    return POST(req, res);
+  return POST(req, res);
 }
