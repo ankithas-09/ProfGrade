@@ -49,6 +49,6 @@ Build the Rate My Professor AI Assistant with Next.js, OpenAI, and Pinecone. Thi
     
 4. **Access the website**
 
-     Open your browser and navigate to http://localhost:3000 to access the website.
+     Open your browser and navigate to https://prof-grade.vercel.app/ to access the website.
    
    
